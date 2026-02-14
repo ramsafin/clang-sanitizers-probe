@@ -1,4 +1,4 @@
-# How-To: Clang Sanitizers
+# Clang Sanitizers
 
 Sanitizers are **runtime tools** that instrument your code during compilation to catch bugs like memory leaks, data races, and undefined behavior. They are primarily used in testing and CI/CD because they introduce significant performance overhead (2x–15x), though certain "hardening" variants can be adapted for production.
 
