@@ -1,0 +1,5 @@
+# Ignore leaks in a specific library
+# leak:libexternal_library.so
+
+# Ignore a specific function known to be safe
+# leak:MyIgnoredFunction

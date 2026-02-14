@@ -1,0 +1,44 @@
+{
+  "version": 8,
+  "configurePresets": [
+    {
+      "name": "base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/build/${presetName}",
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "clang++",
+        "ENABLE_ASAN": "OFF",
+        "ENABLE_UBSAN": "OFF",
+        "ENABLE_TESTING": "OFF",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    },
+    {
+      "name": "Sanitize",
+      "displayName": "Sanitize (ASan + UBSan)",
+      "description": "Clang build with ASan and UBSan",
+      "inherits": "base",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "ENABLE_ASAN": "ON",
+        "ENABLE_UBSAN": "ON",
+        "ENABLE_TESTING": "ON"
+      }
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "Sanitize",
+      "configurePreset": "Sanitize",
+      "environment": {
+        "ASAN_OPTIONS": "halt_on_error=1:detect_leaks=1:suppressions=${sourceDir}/tests/asan.supp",
+        "UBSAN_OPTIONS": "print_stacktrace=1:halt_on_error=1"
+      },
+      "execution": {
+        "stopOnFailure": true,
+        "noTestsAction": "error"
+      }
+    }
+  ]
+}
