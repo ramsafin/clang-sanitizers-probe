@@ -86,3 +86,57 @@ export UBSAN_OPTIONS="print_stacktrace=1:halt_on_error=1"
 ./build/Sanitize/tests/unit_tests --gtest_filter=AddressSanitizer.*
 ./build/Sanitize/tests/unit_tests --gtest_filter=AddressSanitizer.UseAfterFree
 ```
+
+---
+
+## HarmonyOS Integration
+
+### Runtime Library Deployment
+
+HarmonyOS may not include the specific `ASan`/`UBSan` runtime libraries matching the SDK version.
+
+When you link against `-fsanitize=address`, the binary depends on `libclang_rt.asan-*.so`.
+Find this `.so` in your SDK toolchain and manually push it to the device (typically `/data/local/tmp/` or your app's native library path) using `hdc file send`.
+
+Ensure the loader can find the runtime libraries at runtime:
+
+```bash
+hdc shell
+
+export LD_LIBRARY_PATH=/data/local/tmp
+/data/local/tmp/<executable>
+```
+
+```bash
+hdc shell "ASAN_OPTIONS=halt_on_error=1:log_path=/data/local/tmp/asan.log /data/local/tmp/<executable>"
+```
+
+> Note: writing to **stderr** can sometimes be swallowed by the system logs. Using `log_path` ensures you actually get the report.
+
+### GWP-ASan
+
+HarmonyOS often runs on resource-constrained hardware, running a full `ASan` build is not feasible. 
+
+Clang 15+ supports **GWP-ASan**. It uses a **guard-page based approach** to sample a small percentage of allocations.
+
+It has near-zero CPU overhead and negligible memory impact. It is typically enabled via env variables in the system allocator rather than a separate compiler flag. Check if your HarmonyOS SDK version supports `GWP_ASAN_OPTIONS`.
+
+### HWASan (Hardware-Assisted ASan)
+
+If you are targeting `aarch64` (ARMv8.5+ with Memory Tagging Extension), consider `HWASan` (`-fsanitize=hwaddress`).
+
+It uses **"pointer tagging"** rather than shadow memory **"redzones"**. 
+It uses significantly less memory (usually ~10-35% overhead vs ASan) and is much faster on mobile chipsets.
+
+Requires specific kernel support, which is common in modern HarmonyOS/Android-based kernels.
+
+
+### Cross-Compilation Quirks
+
+The `llvm-symbolizer` must reside on your host machine, not the device. 
+
+To get a **readable trace**, pull the logs from the device and run them through the host-side symbolizer:
+
+```bash
+hdc shell "cat /data/local/tmp/asan.log" | llvm-symbolizer --obj /path/to/local/binary_with_symbols
+```
