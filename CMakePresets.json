@@ -10,7 +10,10 @@
         "CMAKE_CXX_COMPILER": "clang++",
         "ENABLE_ASAN": "OFF",
         "ENABLE_UBSAN": "OFF",
-        "ENABLE_TESTING": "OFF",
+        "ENABLE_TESTING": "ON",
+        "ENABLE_HARDENING": "OFF",
+        "ENABLE_WARNINGS": "ON",
+        "WARNINGS_AS_ERRORS": "OFF",
         "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
       }
     },
@@ -23,7 +26,8 @@
         "CMAKE_BUILD_TYPE": "Debug",
         "ENABLE_ASAN": "ON",
         "ENABLE_UBSAN": "ON",
-        "ENABLE_TESTING": "ON"
+        "ENABLE_TESTING": "ON",
+        "ENABLE_HARDENING": "ON"
       }
     }
   ],
